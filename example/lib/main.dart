@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
     // We also handle the message potentially returning null.
     try {
       platformVersion =
-          await _rustCryptorPlugin.getPlatformVersion() ?? 'Unknown platform version';
+          await _rustCryptorPlugin.greet() ?? 'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }

@@ -14,7 +14,7 @@ A new Flutter project.
   s.author           = { 'Your Company' => 'email@example.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
-  s.ios.vendored_libraries = 'Libs/**/*'
+  s.vendored_libraries = 'Libs/**/*'
   s.vendored_frameworks = 'Frameworks/rust_crate.framework'
   s.dependency 'Flutter'
   s.platform = :ios, '9.0'
