@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - rust_cryptor (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - rust_cryptor (from `.symlinks/plugins/rust_cryptor/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  rust_cryptor:
+    :path: ".symlinks/plugins/rust_cryptor/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  rust_cryptor: 32347faf7e204ab0eb90720882e0c7db53710b15
+
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+
+COCOAPODS: 1.11.3
