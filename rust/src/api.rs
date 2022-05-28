@@ -1,6 +1,6 @@
 use std::cell::{Ref, RefCell};
 use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, BlockEncryptMut, KeyIvInit};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 use anyhow::{anyhow, Result};
 use std::collections::HashMap;
 use flutter_rust_bridge::*;
@@ -51,41 +51,41 @@ impl Cryptor {
 pub struct CryptorHandle(pub i64);
 
 lazy_static! {
-    static ref POOL: Mutex<RefCell<HashMap<CryptorHandle, Arc<Cryptor>>>> = {
-        let m = Mutex::new(RefCell::new(HashMap::new()));
+    static ref POOL: RwLock<HashMap<CryptorHandle, Arc<Cryptor>>> = {
+        let m = RwLock::new(HashMap::new());
         m
     };
 }
 
 pub fn cryptor_new(sub_pool_id: i64, key: Vec<u8>, iv_length: usize) -> Result<CryptorHandle> {
     let handle = CryptorHandle(sub_pool_id);
-    POOL.lock().unwrap_or_else(|er| {
+    POOL.write().unwrap_or_else(|er| {
         er.into_inner()
-    }).get_mut().insert(handle.clone(), Arc::new(Cryptor::new(key, iv_length)));
+    }).insert(handle.clone(), Arc::new(Cryptor::new(key, iv_length)));
     Ok(handle)
 }
 
 pub fn cryptor_encrypt(cryptor: CryptorHandle, text: String) -> Result<Vec<u8>> {
-    let mut pool = POOL.lock().unwrap_or_else(|er| {
+    let pool = POOL.read().unwrap_or_else(|er| {
         er.into_inner()
     });
-    let cryptor = pool.get_mut().get_mut(& cryptor).unwrap();
+    let cryptor = pool.get(& cryptor).unwrap();
     let result = cryptor.encrypt(text.as_str());
     Ok(result)
 }
 
 pub fn cryptor_decrypt(cryptor: CryptorHandle, data: Vec<u8>) -> Result<String> {
-    let mut pool = POOL.lock().unwrap_or_else(|er| {
+    let pool = POOL.read().unwrap_or_else(|er| {
         er.into_inner()
     });
-    let cryptor = pool.get_mut().get_mut(& cryptor).unwrap();
+    let cryptor = pool.get(& cryptor).unwrap();
     let result = cryptor.decrypt(data.as_slice());
     Ok(result)
 }
 
 pub fn cryptor_remove(cryptor: CryptorHandle) -> Result<()> {
-    POOL.lock().unwrap_or_else(|er| {
+    POOL.write().unwrap_or_else(|er| {
         er.into_inner()
-    }).get_mut().remove(&cryptor).unwrap();
+    }).remove(&cryptor).unwrap();
     Ok(())
 }

@@ -68,7 +68,7 @@ mod tests {
             "14cfb228a710de4171e396e7b6cf859e"
         );
 
-        let cryptor = cryptor_new(14600, Vec::from(key), 16).unwrap();
+        let cryptor = cryptor_new(15680, Vec::from(key), 16).unwrap();
         let pt = cryptor_decrypt(cryptor.clone(), Vec::from(ciphertext)).unwrap();
         cryptor_remove(cryptor).unwrap();
 
