@@ -7,13 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D41369F82842DF9100DE40C5 /* rust.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D43D1678284106CF007C0039 /* rust.dylib */; platformFilters = (maccatalyst, macos, ); };
+		D41369F92842DF9100DE40C5 /* rust.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = D43D1678284106CF007C0039 /* rust.dylib */; platformFilters = (maccatalyst, macos, ); settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		D43D164F2840F6E9007C0039 /* rust_crate.h in Headers */ = {isa = PBXBuildFile; fileRef = D43D164E2840F6E9007C0039 /* rust_crate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D43D166F2840FAF3007C0039 /* bridge_generated.h in Headers */ = {isa = PBXBuildFile; fileRef = D43D166E2840FAF3007C0039 /* bridge_generated.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D43D167D284106FE007C0039 /* librust_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D43D1676284106CF007C0039 /* librust_static.a */; platformFilter = ios; };
-		D43D167E284106FE007C0039 /* rust.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D43D1678284106CF007C0039 /* rust.dylib */; platformFilters = (macos, ); };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		D41369FB2842DF9C00DE40C5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D43D165E2840F742007C0039 /* rust.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = CA60131C3126F6C5F472C3B2;
+			remoteInfo = "rust-cdylib";
+		};
 		D43D1675284106CF007C0039 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D43D165E2840F742007C0039 /* rust.xcodeproj */;
@@ -28,13 +36,6 @@
 			remoteGlobalIDString = CA60131C3126F106A24E505E;
 			remoteInfo = "rust-cdylib";
 		};
-		D43D1679284106F4007C0039 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D43D165E2840F742007C0039 /* rust.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = CA60131C3126F6C5F472C3B2;
-			remoteInfo = "rust-cdylib";
-		};
 		D43D167B284106F7007C0039 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D43D165E2840F742007C0039 /* rust.xcodeproj */;
@@ -43,6 +44,20 @@
 			remoteInfo = "rust-staticlib";
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D41369FA2842DF9100DE40C5 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D41369F92842DF9100DE40C5 /* rust.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D43D164B2840F6E9007C0039 /* rust_crate.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = rust_crate.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -56,8 +71,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D41369F82842DF9100DE40C5 /* rust.dylib in Frameworks */,
 				D43D167D284106FE007C0039 /* librust_static.a in Frameworks */,
-				D43D167E284106FE007C0039 /* rust.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,12 +145,13 @@
 				D43D16472840F6E9007C0039 /* Sources */,
 				D43D16482840F6E9007C0039 /* Frameworks */,
 				D43D16492840F6E9007C0039 /* Resources */,
+				D41369FA2842DF9100DE40C5 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D41369FC2842DF9C00DE40C5 /* PBXTargetDependency */,
 				D43D167C284106F7007C0039 /* PBXTargetDependency */,
-				D43D167A284106F4007C0039 /* PBXTargetDependency */,
 			);
 			name = rust_crate;
 			productName = rust_crate;
@@ -218,10 +234,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		D43D167A284106F4007C0039 /* PBXTargetDependency */ = {
+		D41369FC2842DF9C00DE40C5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "rust-cdylib";
-			targetProxy = D43D1679284106F4007C0039 /* PBXContainerItemProxy */;
+			targetProxy = D41369FB2842DF9C00DE40C5 /* PBXContainerItemProxy */;
 		};
 		D43D167C284106F7007C0039 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

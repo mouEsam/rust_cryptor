@@ -11,6 +11,15 @@
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Frameworks/rust.dylib</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			fVqLniaiUBLECwDav+VcDSAZf4Y=
+			</data>
+			<key>requirement</key>
+			<string>identifier "rust-5555494418b09f1df2623cfab54bc1188f6a6355" and anchor apple generic and certificate leaf[subject.CN] = "Apple Development: Mostafa Ibrahim (69JRLTMQKM)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+		</dict>
 		<key>Headers/bridge_generated.h</key>
 		<dict>
 			<key>hash2</key>
