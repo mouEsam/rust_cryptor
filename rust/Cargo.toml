@@ -10,3 +10,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 
 [dependencies]
 flutter_rust_bridge = "1"
+aes = "0.8.1"
+cbc = "0.1.2"
+hex-literal = "0.3.4"
+anyhow = "1.0.57"
