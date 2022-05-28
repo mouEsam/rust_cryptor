@@ -1,9 +1,8 @@
-use std::cell::{Ref, RefCell};
 use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, BlockEncryptMut, KeyIvInit};
-use std::sync::{Arc, Mutex, RwLock};
-use anyhow::{anyhow, Result};
+use std::sync::{Arc, RwLock};
+use anyhow::{Result};
 use std::collections::HashMap;
-use flutter_rust_bridge::*;
+
 
 pub fn greet() -> String {
     "Hello from Rust! 🦀".into()
@@ -25,11 +24,11 @@ impl Cryptor {
         }
     }
 
-    fn encryptor(&self) -> cbc::Encryptor::<aes::Aes128> {
+    fn encryptor(&self) -> cbc::Encryptor<aes::Aes128> {
         cbc::Encryptor::<aes::Aes128>::new((*self.key).into(), (*self.iv).into())
     }
 
-    fn decryptor(&self) -> cbc::Decryptor::<aes::Aes128> {
+    fn decryptor(&self) -> cbc::Decryptor<aes::Aes128> {
         cbc::Decryptor::<aes::Aes128>::new((*self.key).into(), (*self.iv).into())
     }
 
