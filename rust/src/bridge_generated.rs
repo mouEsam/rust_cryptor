@@ -29,13 +29,117 @@ pub extern "C" fn wire_greet(port_: i64) {
     )
 }
 
+#[no_mangle]
+pub extern "C" fn wire_cryptor_new(
+    port_: i64,
+    sub_pool_id: i64,
+    key: *mut wire_uint_8_list,
+    iv_length: usize,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "cryptor_new",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_sub_pool_id = sub_pool_id.wire2api();
+            let api_key = key.wire2api();
+            let api_iv_length = iv_length.wire2api();
+            move |task_callback| cryptor_new(api_sub_pool_id, api_key, api_iv_length)
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_cryptor_encrypt(
+    port_: i64,
+    cryptor: *mut wire_CryptorHandle,
+    text: *mut wire_uint_8_list,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "cryptor_encrypt",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_cryptor = cryptor.wire2api();
+            let api_text = text.wire2api();
+            move |task_callback| cryptor_encrypt(api_cryptor, api_text)
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_cryptor_decrypt(
+    port_: i64,
+    cryptor: *mut wire_CryptorHandle,
+    data: *mut wire_uint_8_list,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "cryptor_decrypt",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_cryptor = cryptor.wire2api();
+            let api_data = data.wire2api();
+            move |task_callback| cryptor_decrypt(api_cryptor, api_data)
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_cryptor_remove(port_: i64, cryptor: *mut wire_CryptorHandle) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "cryptor_remove",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_cryptor = cryptor.wire2api();
+            move |task_callback| cryptor_remove(api_cryptor)
+        },
+    )
+}
+
 // Section: wire structs
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_CryptorHandle {
+    field0: i64,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_uint_8_list {
+    ptr: *mut u8,
+    len: i32,
+}
 
 // Section: wrapper structs
 
 // Section: static checks
 
 // Section: allocate functions
+
+#[no_mangle]
+pub extern "C" fn new_box_autoadd_cryptor_handle() -> *mut wire_CryptorHandle {
+    support::new_leak_box_ptr(wire_CryptorHandle::new_with_null_ptr())
+}
+
+#[no_mangle]
+pub extern "C" fn new_uint_8_list(len: i32) -> *mut wire_uint_8_list {
+    let ans = wire_uint_8_list {
+        ptr: support::new_leak_vec_ptr(Default::default(), len),
+        len,
+    };
+    support::new_leak_box_ptr(ans)
+}
 
 // Section: impl Wire2Api
 
@@ -56,6 +160,53 @@ where
     }
 }
 
+impl Wire2Api<String> for *mut wire_uint_8_list {
+    fn wire2api(self) -> String {
+        let vec: Vec<u8> = self.wire2api();
+        String::from_utf8_lossy(&vec).into_owned()
+    }
+}
+
+impl Wire2Api<CryptorHandle> for *mut wire_CryptorHandle {
+    fn wire2api(self) -> CryptorHandle {
+        let wrap = unsafe { support::box_from_leak_ptr(self) };
+        (*wrap).wire2api().into()
+    }
+}
+
+impl Wire2Api<CryptorHandle> for wire_CryptorHandle {
+    fn wire2api(self) -> CryptorHandle {
+        CryptorHandle(self.field0.wire2api())
+    }
+}
+
+impl Wire2Api<i64> for i64 {
+    fn wire2api(self) -> i64 {
+        self
+    }
+}
+
+impl Wire2Api<u8> for u8 {
+    fn wire2api(self) -> u8 {
+        self
+    }
+}
+
+impl Wire2Api<Vec<u8>> for *mut wire_uint_8_list {
+    fn wire2api(self) -> Vec<u8> {
+        unsafe {
+            let wrap = support::box_from_leak_ptr(self);
+            support::vec_from_leak_ptr(wrap.ptr, wrap.len)
+        }
+    }
+}
+
+impl Wire2Api<usize> for usize {
+    fn wire2api(self) -> usize {
+        self
+    }
+}
+
 // Section: impl NewWithNullPtr
 
 pub trait NewWithNullPtr {
@@ -68,7 +219,22 @@ impl<T> NewWithNullPtr for *mut T {
     }
 }
 
+impl NewWithNullPtr for wire_CryptorHandle {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            field0: Default::default(),
+        }
+    }
+}
+
 // Section: impl IntoDart
+
+impl support::IntoDart for CryptorHandle {
+    fn into_dart(self) -> support::DartCObject {
+        vec![self.0.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for CryptorHandle {}
 
 // Section: executor
 

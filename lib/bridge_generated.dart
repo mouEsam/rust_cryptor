@@ -13,6 +13,28 @@ import 'dart:ffi' as ffi;
 
 abstract class Rust {
   Future<String> greet({dynamic hint});
+
+  Future<CryptorHandle> cryptorNew(
+      {required int subPoolId,
+      required Uint8List key,
+      required int ivLength,
+      dynamic hint});
+
+  Future<Uint8List> cryptorEncrypt(
+      {required CryptorHandle cryptor, required String text, dynamic hint});
+
+  Future<String> cryptorDecrypt(
+      {required CryptorHandle cryptor, required Uint8List data, dynamic hint});
+
+  Future<void> cryptorRemove({required CryptorHandle cryptor, dynamic hint});
+}
+
+class CryptorHandle {
+  final int field0;
+
+  CryptorHandle({
+    required this.field0,
+  });
 }
 
 class RustImpl extends FlutterRustBridgeBase<RustWire> implements Rust {
@@ -31,15 +53,134 @@ class RustImpl extends FlutterRustBridgeBase<RustWire> implements Rust {
         hint: hint,
       ));
 
+  Future<CryptorHandle> cryptorNew(
+          {required int subPoolId,
+          required Uint8List key,
+          required int ivLength,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_cryptor_new(
+            port_,
+            _api2wire_i64(subPoolId),
+            _api2wire_uint_8_list(key),
+            _api2wire_usize(ivLength)),
+        parseSuccessData: _wire2api_cryptor_handle,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "cryptor_new",
+          argNames: ["subPoolId", "key", "ivLength"],
+        ),
+        argValues: [subPoolId, key, ivLength],
+        hint: hint,
+      ));
+
+  Future<Uint8List> cryptorEncrypt(
+          {required CryptorHandle cryptor,
+          required String text,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_cryptor_encrypt(
+            port_,
+            _api2wire_box_autoadd_cryptor_handle(cryptor),
+            _api2wire_String(text)),
+        parseSuccessData: _wire2api_uint_8_list,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "cryptor_encrypt",
+          argNames: ["cryptor", "text"],
+        ),
+        argValues: [cryptor, text],
+        hint: hint,
+      ));
+
+  Future<String> cryptorDecrypt(
+          {required CryptorHandle cryptor,
+          required Uint8List data,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_cryptor_decrypt(
+            port_,
+            _api2wire_box_autoadd_cryptor_handle(cryptor),
+            _api2wire_uint_8_list(data)),
+        parseSuccessData: _wire2api_String,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "cryptor_decrypt",
+          argNames: ["cryptor", "data"],
+        ),
+        argValues: [cryptor, data],
+        hint: hint,
+      ));
+
+  Future<void> cryptorRemove({required CryptorHandle cryptor, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_cryptor_remove(
+            port_, _api2wire_box_autoadd_cryptor_handle(cryptor)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "cryptor_remove",
+          argNames: ["cryptor"],
+        ),
+        argValues: [cryptor],
+        hint: hint,
+      ));
+
   // Section: api2wire
+  ffi.Pointer<wire_uint_8_list> _api2wire_String(String raw) {
+    return _api2wire_uint_8_list(utf8.encoder.convert(raw));
+  }
+
+  ffi.Pointer<wire_CryptorHandle> _api2wire_box_autoadd_cryptor_handle(
+      CryptorHandle raw) {
+    final ptr = inner.new_box_autoadd_cryptor_handle();
+    _api_fill_to_wire_cryptor_handle(raw, ptr.ref);
+    return ptr;
+  }
+
+  int _api2wire_i64(int raw) {
+    return raw;
+  }
+
+  int _api2wire_u8(int raw) {
+    return raw;
+  }
+
+  ffi.Pointer<wire_uint_8_list> _api2wire_uint_8_list(Uint8List raw) {
+    final ans = inner.new_uint_8_list(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  int _api2wire_usize(int raw) {
+    return raw;
+  }
 
   // Section: api_fill_to_wire
 
+  void _api_fill_to_wire_box_autoadd_cryptor_handle(
+      CryptorHandle apiObj, ffi.Pointer<wire_CryptorHandle> wireObj) {
+    _api_fill_to_wire_cryptor_handle(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_cryptor_handle(
+      CryptorHandle apiObj, wire_CryptorHandle wireObj) {
+    wireObj.field0 = _api2wire_i64(apiObj.field0);
+  }
 }
 
 // Section: wire2api
 String _wire2api_String(dynamic raw) {
   return raw as String;
+}
+
+CryptorHandle _wire2api_cryptor_handle(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 1)
+    throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+  return CryptorHandle(
+    field0: _wire2api_i64(arr[0]),
+  );
+}
+
+int _wire2api_i64(dynamic raw) {
+  return raw as int;
 }
 
 int _wire2api_u8(dynamic raw) {
@@ -48,6 +189,10 @@ int _wire2api_u8(dynamic raw) {
 
 Uint8List _wire2api_uint_8_list(dynamic raw) {
   return raw as Uint8List;
+}
+
+void _wire2api_unit(dynamic raw) {
+  return;
 }
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
@@ -83,6 +228,110 @@ class RustWire implements FlutterRustBridgeWireBase {
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_greet');
   late final _wire_greet = _wire_greetPtr.asFunction<void Function(int)>();
 
+  void wire_cryptor_new(
+    int port_,
+    int sub_pool_id,
+    ffi.Pointer<wire_uint_8_list> key,
+    int iv_length,
+  ) {
+    return _wire_cryptor_new(
+      port_,
+      sub_pool_id,
+      key,
+      iv_length,
+    );
+  }
+
+  late final _wire_cryptor_newPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Int64, ffi.Pointer<wire_uint_8_list>,
+              uintptr_t)>>('wire_cryptor_new');
+  late final _wire_cryptor_new = _wire_cryptor_newPtr.asFunction<
+      void Function(int, int, ffi.Pointer<wire_uint_8_list>, int)>();
+
+  void wire_cryptor_encrypt(
+    int port_,
+    ffi.Pointer<wire_CryptorHandle> cryptor,
+    ffi.Pointer<wire_uint_8_list> text,
+  ) {
+    return _wire_cryptor_encrypt(
+      port_,
+      cryptor,
+      text,
+    );
+  }
+
+  late final _wire_cryptor_encryptPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_CryptorHandle>,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_cryptor_encrypt');
+  late final _wire_cryptor_encrypt = _wire_cryptor_encryptPtr.asFunction<
+      void Function(int, ffi.Pointer<wire_CryptorHandle>,
+          ffi.Pointer<wire_uint_8_list>)>();
+
+  void wire_cryptor_decrypt(
+    int port_,
+    ffi.Pointer<wire_CryptorHandle> cryptor,
+    ffi.Pointer<wire_uint_8_list> data,
+  ) {
+    return _wire_cryptor_decrypt(
+      port_,
+      cryptor,
+      data,
+    );
+  }
+
+  late final _wire_cryptor_decryptPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_CryptorHandle>,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_cryptor_decrypt');
+  late final _wire_cryptor_decrypt = _wire_cryptor_decryptPtr.asFunction<
+      void Function(int, ffi.Pointer<wire_CryptorHandle>,
+          ffi.Pointer<wire_uint_8_list>)>();
+
+  void wire_cryptor_remove(
+    int port_,
+    ffi.Pointer<wire_CryptorHandle> cryptor,
+  ) {
+    return _wire_cryptor_remove(
+      port_,
+      cryptor,
+    );
+  }
+
+  late final _wire_cryptor_removePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_CryptorHandle>)>>('wire_cryptor_remove');
+  late final _wire_cryptor_remove = _wire_cryptor_removePtr
+      .asFunction<void Function(int, ffi.Pointer<wire_CryptorHandle>)>();
+
+  ffi.Pointer<wire_CryptorHandle> new_box_autoadd_cryptor_handle() {
+    return _new_box_autoadd_cryptor_handle();
+  }
+
+  late final _new_box_autoadd_cryptor_handlePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<wire_CryptorHandle> Function()>>(
+          'new_box_autoadd_cryptor_handle');
+  late final _new_box_autoadd_cryptor_handle =
+      _new_box_autoadd_cryptor_handlePtr
+          .asFunction<ffi.Pointer<wire_CryptorHandle> Function()>();
+
+  ffi.Pointer<wire_uint_8_list> new_uint_8_list(
+    int len,
+  ) {
+    return _new_uint_8_list(
+      len,
+    );
+  }
+
+  late final _new_uint_8_listPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_uint_8_list> Function(
+              ffi.Int32)>>('new_uint_8_list');
+  late final _new_uint_8_list = _new_uint_8_listPtr
+      .asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
+
   void free_WireSyncReturnStruct(
     WireSyncReturnStruct val,
   ) {
@@ -112,6 +361,19 @@ class RustWire implements FlutterRustBridgeWireBase {
       .asFunction<void Function(DartPostCObjectFnType)>();
 }
 
+class wire_uint_8_list extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+class wire_CryptorHandle extends ffi.Struct {
+  @ffi.Int64()
+  external int field0;
+}
+
+typedef uintptr_t = ffi.UnsignedLong;
 typedef DartPostCObjectFnType = ffi.Pointer<
     ffi.NativeFunction<ffi.Uint8 Function(DartPort, ffi.Pointer<ffi.Void>)>>;
 typedef DartPort = ffi.Int64;

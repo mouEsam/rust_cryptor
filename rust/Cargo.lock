@@ -230,6 +230,7 @@ dependencies = [
  "cbc",
  "flutter_rust_bridge",
  "hex-literal",
+ "lazy_static",
 ]
 
 [[package]]

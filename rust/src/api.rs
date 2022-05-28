@@ -1,11 +1,15 @@
+use std::cell::{Ref, RefCell};
 use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, BlockEncryptMut, KeyIvInit};
-use anyhow::Result;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
+use anyhow::{anyhow, Result};
+use std::collections::HashMap;
+use flutter_rust_bridge::*;
 
 pub fn greet() -> String {
     "Hello from Rust! 🦀".into()
 }
 
+#[derive(Debug)]
 pub struct Cryptor {
     key: Box<[u8]>,
     iv: Box<[u8]>
@@ -50,21 +54,44 @@ impl Cryptor {
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
-pub struct CryptorHandle(pub i64, pub i64);
+pub struct CryptorHandle(pub i64);
 
-impl_pool_object_handle!(Arc<Cryptor>, CryptorHandle);
-
-pub fn cryptor_new(sub_pool_id: i64, key: Vec<u8>, iv_length: usize) -> Result<CryptorHandle> {
-    Ok(pool::put(sub_pool_id, Arc::new(Cryptor::new(key, iv_length))))
+lazy_static! {
+    static ref POOL: Mutex<RefCell<HashMap<CryptorHandle, Arc<Cryptor>>>> = {
+        let m = Mutex::new(RefCell::new(HashMap::new()));
+        m
+    };
 }
 
-pub fn cryptor_encrpyt(cryptor: CryptorHandle, text: String) -> Result<Vec<u8>> {
-    let mut cryptor = pool::get_cloned(cryptor)?;
-    let result = cryptor.encrypt(text);
+pub fn cryptor_new(sub_pool_id: i64, key: Vec<u8>, iv_length: usize) -> Result<CryptorHandle> {
+    let handle = CryptorHandle(sub_pool_id);
+    POOL.lock().unwrap_or_else(|er| {
+        er.into_inner()
+    }).get_mut().insert(handle.clone(), Arc::new(Cryptor::new(key, iv_length)));
+    Ok(handle)
+}
+
+pub fn cryptor_encrypt(cryptor: CryptorHandle, text: String) -> Result<Vec<u8>> {
+    let mut pool = POOL.lock().unwrap_or_else(|er| {
+        er.into_inner()
+    });
+    let cryptor = pool.get_mut().get_mut(& cryptor).unwrap();
+    let result = cryptor.encrypt(text.as_str());
+    Ok(result)
+}
+
+pub fn cryptor_decrypt(cryptor: CryptorHandle, data: Vec<u8>) -> Result<String> {
+    let mut pool = POOL.lock().unwrap_or_else(|er| {
+        er.into_inner()
+    });
+    let cryptor = pool.get_mut().get_mut(& cryptor).unwrap();
+    let result = cryptor.decrypt(data.as_slice());
     Ok(result)
 }
 
 pub fn cryptor_remove(cryptor: CryptorHandle) -> Result<()> {
-    pool::remove(cryptor);
+    POOL.lock().unwrap_or_else(|er| {
+        er.into_inner()
+    }).get_mut().remove(&cryptor).unwrap();
     Ok(())
 }
