@@ -64,27 +64,29 @@ pub fn cryptor_new(sub_pool_id: i64, key: Vec<u8>, iv_length: usize) -> Result<C
     Ok(handle)
 }
 
-pub fn cryptor_encrypt(cryptor: CryptorHandle, text: String) -> Result<Vec<u8>> {
+fn cryptor_read(cryptor: & CryptorHandle) -> Arc<Cryptor> {
     let pool = POOL.read().unwrap_or_else(|er| {
         er.into_inner()
     });
-    let cryptor = pool.get(& cryptor).unwrap();
+    pool.get(cryptor).unwrap().clone()
+}
+
+pub fn cryptor_encrypt(cryptor: CryptorHandle, text: String) -> Result<Vec<u8>> {
+    let cryptor = cryptor_read(& cryptor);
     let result = cryptor.encrypt(text.as_str());
     Ok(result)
 }
 
 pub fn cryptor_decrypt(cryptor: CryptorHandle, data: Vec<u8>) -> Result<String> {
-    let pool = POOL.read().unwrap_or_else(|er| {
-        er.into_inner()
-    });
-    let cryptor = pool.get(& cryptor).unwrap();
+    let cryptor = cryptor_read(& cryptor);
     let result = cryptor.decrypt(data.as_slice());
     Ok(result)
 }
 
 pub fn cryptor_remove(cryptor: CryptorHandle) -> Result<()> {
-    POOL.write().unwrap_or_else(|er| {
+    let mut lock_guard = POOL.write().unwrap_or_else(|er| {
         er.into_inner()
-    }).remove(&cryptor).unwrap();
+    });
+    lock_guard.remove(&cryptor).unwrap();
     Ok(())
 }
