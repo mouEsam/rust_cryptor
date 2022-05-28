@@ -4,10 +4,9 @@ import 'package:rust_cryptor/rust_cryptor_platform_interface.dart';
 import 'package:rust_cryptor/rust_cryptor_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-class MockRustCryptorPlatform 
+class MockRustCryptorPlatform
     with MockPlatformInterfaceMixin
     implements RustCryptorPlatform {
-
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 }
@@ -20,10 +19,10 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    RustCryptor rustCryptorPlugin = RustCryptor();
+    RustLib rustCryptorPlugin = RustLib();
     MockRustCryptorPlatform fakePlatform = MockRustCryptorPlatform();
     RustCryptorPlatform.instance = fakePlatform;
-  
+
     expect(await rustCryptorPlugin.getPlatformVersion(), '42');
   });
 }
