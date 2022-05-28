@@ -34,20 +34,14 @@ impl Cryptor {
     }
 
     pub fn encrypt(& self, text: &str) -> Vec<u8> {
-        let text_len = text.len();
-        let len = ((text_len / 16) + 1) * 16;
-        let mut buf = vec![0x0u8; len];
-        buf[..text_len].copy_from_slice(text.as_bytes());
         let enc = self.encryptor();
-        let ct = enc.encrypt_padded_mut::<Pkcs7>(&mut buf, text_len)
-                .unwrap();
+        let ct = enc.encrypt_padded_vec_mut::<Pkcs7>(text.as_bytes());
         Vec::from(ct)
     }
 
     pub fn decrypt(& self, value: &[u8]) -> String {
-        let mut buf = Vec::from(value);
         let enc = self.decryptor();
-        let ct = enc.decrypt_padded_mut::<Pkcs7>(&mut buf)
+        let ct = enc.decrypt_padded_vec_mut::<Pkcs7>(&value)
                 .unwrap();
         String::from_utf8(Vec::from(ct)).unwrap()
     }
