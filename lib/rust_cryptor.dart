@@ -28,10 +28,6 @@ class RustLib {
   Future<String?> getPlatformVersion() {
     return RustCryptorPlatform.instance.getPlatformVersion();
   }
-
-  Future<String?> greet() {
-    return api.greet();
-  }
 }
 
 class RustCryptor {
@@ -60,7 +56,7 @@ class RustCryptor {
   }
 
   Future<String?> greet() {
-    return _lib.greet();
+    return _lib.api.greet();
   }
 
   Future<void> dispose() {

@@ -16,7 +16,7 @@ pub struct Cryptor {
 
 impl Cryptor {
     pub fn new(key: Vec<u8>, iv_length: usize) -> Cryptor {
-        let iv = vec![0x24; iv_length];
+        let iv = vec![0x0; iv_length];
 
         Cryptor {
             key: key.into_boxed_slice(),
@@ -24,12 +24,12 @@ impl Cryptor {
         }
     }
 
-    fn encryptor(&self) -> cbc::Encryptor<aes::Aes128> {
-        cbc::Encryptor::<aes::Aes128>::new((*self.key).into(), (*self.iv).into())
+    fn encryptor(&self) -> cbc::Encryptor<aes::Aes256> {
+        cbc::Encryptor::<aes::Aes256>::new((*self.key).into(), (*self.iv).into())
     }
 
-    fn decryptor(&self) -> cbc::Decryptor<aes::Aes128> {
-        cbc::Decryptor::<aes::Aes128>::new((*self.key).into(), (*self.iv).into())
+    fn decryptor(&self) -> cbc::Decryptor<aes::Aes256> {
+        cbc::Decryptor::<aes::Aes256>::new((*self.key).into(), (*self.iv).into())
     }
 
     pub fn encrypt(& self, text: &str) -> Vec<u8> {

@@ -84,7 +84,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _result = String.fromCharCodes(result);
+      _result = result.toString();
     });
   }
 
